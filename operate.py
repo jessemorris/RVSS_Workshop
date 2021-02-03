@@ -82,8 +82,6 @@ class Operate:
 
     def take_pic(self):
         self.img = self.pibot.get_image()
-        robot_view = cv2.resize(self.img, (320, 240))
-        self.ekf.robot.fruit_detect(self.img)
         if not self.data is None:
             self.data.write_image(self.img)
        
