@@ -28,7 +28,7 @@ class Operate:
     def __init__(self, args):
         # Initialise data parameters
         if args.play_data:
-            self.pibot = dh.DatasetPlayer("record")
+            self.pibot = dh.DatasetPlayer(args.play_data)
         else:
             self.pibot = PenguinPi(args.ip, args.port)
         # ckpt = ""
@@ -82,6 +82,8 @@ class Operate:
 
     def take_pic(self):
         self.img = self.pibot.get_image()
+        robot_view = cv2.resize(self.img, (320, 240))
+        self.ekf.robot.fruit_detect(self.img)
         if not self.data is None:
             self.data.write_image(self.img)
        
@@ -106,7 +108,7 @@ class Operate:
             self.detector_output, self.network_vis = self.detector.detect_single_image(self.img)
             self.command['inference'] = False
             self.file_output = (self.detector_output, self.ekf)
-            self.notification = f'{len(np.unique(self.detector_output))-1} fruit type(s) detected'
+            self.notification = "{} fruit type(s) detected".format(len(np.unique(self.detector_output))-1)
             
     def init_ekf(self, datadir, ip):
         fileK = "{}intrinsic.txt".format(datadir)
@@ -248,7 +250,8 @@ if __name__ == "__main__":
     parser.add_argument("--port", metavar='', type=int, default=40000)
     parser.add_argument("--calib_dir", type=str, default="calibration/param/")
     parser.add_argument("--save_data", action='store_true')
-    parser.add_argument("--play_data", action='store_true')
+    # parser.add_argument("--play_data", action='store_true')
+    parser.add_argument("--play_data", default='record')
     parser.add_argument("--ckpt", default='')
     args, _ = parser.parse_known_args()
     

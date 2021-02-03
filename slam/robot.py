@@ -1,4 +1,5 @@
 import numpy as np
+import cv2
 
 class Robot:
     def __init__(self, wheels_width, wheels_scale, camera_matrix, camera_dist):
@@ -148,3 +149,47 @@ class Robot:
         cov = Jac @ cov @ Jac.T
         
         return cov
+
+    ###### IMAGE #####
+    def fruit_detect(self, img):
+        #just take the r channel becuase the ground will come up white and everything black becuase it is red
+        # b = cv2.GaussianBlur(img,(5,5),0)
+        img_grey = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+        image = img.copy()
+
+        #threshold and invert the output so we can do morphological operation
+        _,th3 = cv2.threshold(img_grey,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+        cv2.imshow("Thres", img)
+
+
+        #can mess with kernal size
+        kernel = np.ones((11,11),np.uint8)
+        opening = cv2.morphologyEx(th3, cv2.MORPH_OPEN, kernel)
+
+        edges = cv2.Canny(opening,50,150)
+
+
+        contours, _= cv2.findContours(edges, cv2.RETR_EXTERNAL, 
+                                    cv2.CHAIN_APPROX_SIMPLE) 
+
+        cv2.drawContours(image, contours, -1, (0, 255, 0), 3)
+
+        # in pixels!
+        #can mess with this param
+        min_area = 100
+        for c in contours:
+            area = cv2.contourArea(c)
+            # print(area)
+
+            if (area > min_area):
+                moment = cv2.moments(c)
+                cx = int(moment['m10']/(moment['m00'] + 1e-5)) 
+                cy = int(moment['m01']/(moment['m00'] +  1e-5))
+
+                x,y,w,h = cv2.boundingRect(c)
+
+
+                cv2.rectangle(image,(x,y),(x+w,y+h),(0,0,255),2)
+                cv2.circle(image, (cx, cy), 5, (0, 255, 0))
+
+        cv2.imshow("Blobs", image)

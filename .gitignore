@@ -16,3 +16,6 @@ src/data_collector/dataset
 /record
 /workshop_output
 *.png
+fruit_images/
+fruits_1K_swadhin/
+record_005_09_09/

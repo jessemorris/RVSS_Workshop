@@ -51,6 +51,7 @@ class DatasetWriter:
 
 class DatasetPlayer:
     def __init__(self, dataset_name):
+        self.dataset_name = dataset_name
         self.kb_f = open(dataset_name+"/"+"keyboard.csv", 'r')
         self.kb_fc = csv.reader(self.kb_f)
 
@@ -74,7 +75,9 @@ class DatasetPlayer:
             return img
 
         t = float(row[0])
-        img = cv2.imread(row[2])
+        og_row = row[2]
+        file_name =  self.dataset_name + "/" + og_row.split("/")[-1]
+        img = cv2.imread(file_name)
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         while time.time() - self.t0 < t:
             continue
